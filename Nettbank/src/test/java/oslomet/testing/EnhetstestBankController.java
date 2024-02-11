@@ -9,6 +9,7 @@ import oslomet.testing.API.BankController;
 import oslomet.testing.DAL.BankRepository;
 import oslomet.testing.Models.Konto;
 import oslomet.testing.Models.Kunde;
+import oslomet.testing.Models.Transaksjon;
 import oslomet.testing.Sikkerhet.Sikkerhet;
 
 import java.util.ArrayList;
@@ -91,7 +92,6 @@ public class EnhetstestBankController {
     @Test
     public void hentKonti_IkkeLoggetInn()  {
         // arrange
-
         when(sjekk.loggetInn()).thenReturn(null);
 
         // act
@@ -99,6 +99,47 @@ public class EnhetstestBankController {
 
         // assert
         assertNull(resultat);
+    }
+
+    @Test
+    public void hentTransaksjoner_LoggetInn() {
+        // arrange
+        List<Transaksjon> transaksjoner = new ArrayList<>();
+
+        Transaksjon transaksjon1 = new Transaksjon(1, "01010110523", 15000, "21.02.2023",
+                "Husleie februar 2023", "", "12345678901");
+        Transaksjon transaksjon2 = new Transaksjon(1, "01010110523", 15000, "21.04.2023",
+                "Husleie april 2023", "", "12345678901");
+        transaksjoner.add(transaksjon1);
+        transaksjoner.add(transaksjon2);
+
+        Konto konto = new Konto("105010123456", "01010110523",
+                720, "Lønnskonto", "NOK", transaksjoner);
+
+        when(sjekk.loggetInn()).thenReturn("105010123456");
+
+        when(repository.hentTransaksjoner("105010123456", "15.02.2023",
+                "29.02.2023")).thenReturn(konto);
+
+        // act
+        Konto resultat = bankController.hentTransaksjoner("105010123456", "15.02.2023",
+                "29.02.2023");
+
+        // assert
+        assertEquals(konto, resultat);
+    }
+
+    @Test
+    public void hentTransaksjoner_IkkeLoggetInn() {
+        // arrange
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        // act
+        Konto resultat = bankController.hentTransaksjoner(null,"20.02.2024","27.02.2024");
+
+        // assert
+        assertNull(resultat);
+
     }
 }
 
