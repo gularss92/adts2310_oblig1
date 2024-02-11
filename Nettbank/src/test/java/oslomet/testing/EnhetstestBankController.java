@@ -174,5 +174,37 @@ public class EnhetstestBankController {
         // assert
         assertNull(resultat);
     }
+
+    @Test
+    public void registrerBetaling_LoggetInn() {
+        // arrange
+        Transaksjon transaksjon = new Transaksjon(1, "01010110523", 15000, "2023-04-04",
+                "Husleie april 2023", "", "12345678901");
+
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+
+        when(repository.registrerBetaling(transaksjon)).thenReturn("OK");
+
+        // act
+        String resultat = bankController.registrerBetaling(transaksjon);
+
+        // assert
+        assertEquals("OK", resultat);
+    }
+
+    @Test
+    public void registrerBetaling_IkkeLoggetInn() {
+        // arrange
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        Transaksjon transaksjon = new Transaksjon(1, "01010110523", 15000, "2023-04-04",
+                "Husleie april 2023", "", "12345678901");
+
+        // act
+        String resultat = bankController.registrerBetaling(transaksjon);
+
+        // assert
+        assertNull(resultat);
+    }
 }
 
