@@ -17,7 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -267,7 +267,7 @@ public class EnhetstestBankController {
         // arrange
         when(sjekk.loggetInn()).thenReturn("01010110523");
 
-        when(repository.utforBetaling(3)).thenReturn("Feil");
+        when(repository.utforBetaling(anyInt())).thenReturn("Feil");
 
         // act
         List<Transaksjon> resultat = bankController.utforBetaling(3);
@@ -283,6 +283,40 @@ public class EnhetstestBankController {
 
         // act
         List<Transaksjon> resultat = bankController.utforBetaling(1);
+
+        // assert
+        assertNull(resultat);
+    }
+
+    @Test
+    public void endreKundeInfo_LoggetInn() {
+        // arrange
+        Kunde enKunde = new Kunde("01010110523",
+                "Lene", "Jensen", "Askerveien 22", "3270",
+                "Asker", "22224444", "HeiHei");
+
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+
+        when(repository.endreKundeInfo(any(Kunde.class))).thenReturn("OK");
+
+        // act
+        String resultat = bankController.endre(enKunde);
+
+        // assert
+        assertEquals("OK", resultat);
+    }
+
+    @Test
+    public void endreKundeInfo_IkkeLoggetInn() {
+        // arrange
+        Kunde enKunde = new Kunde("01010110523",
+                "Lene", "Jensen", "Askerveien 22", "3270",
+                "Asker", "22224444", "HeiHei");
+
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        // act
+        String resultat = bankController.endre(enKunde);
 
         // assert
         assertNull(resultat);
