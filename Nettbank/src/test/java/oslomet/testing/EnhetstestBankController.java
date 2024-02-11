@@ -106,9 +106,9 @@ public class EnhetstestBankController {
         // arrange
         List<Transaksjon> transaksjoner = new ArrayList<>();
 
-        Transaksjon transaksjon1 = new Transaksjon(1, "01010110523", 15000, "21.02.2023",
+        Transaksjon transaksjon1 = new Transaksjon(1, "01010110523", 15000, "2023-02-02",
                 "Husleie februar 2023", "", "12345678901");
-        Transaksjon transaksjon2 = new Transaksjon(1, "01010110523", 15000, "21.04.2023",
+        Transaksjon transaksjon2 = new Transaksjon(1, "01010110523", 15000, "2023-04-04",
                 "Husleie april 2023", "", "12345678901");
         transaksjoner.add(transaksjon1);
         transaksjoner.add(transaksjon2);
@@ -118,12 +118,12 @@ public class EnhetstestBankController {
 
         when(sjekk.loggetInn()).thenReturn("105010123456");
 
-        when(repository.hentTransaksjoner("105010123456", "15.02.2023",
-                "29.02.2023")).thenReturn(konto);
+        when(repository.hentTransaksjoner("105010123456", "2023-02-02",
+                "2023-02-02")).thenReturn(konto);
 
         // act
-        Konto resultat = bankController.hentTransaksjoner("105010123456", "15.02.2023",
-                "29.02.2023");
+        Konto resultat = bankController.hentTransaksjoner("105010123456", "2023-02-02",
+                "2023-02-02");
 
         // assert
         assertEquals(konto, resultat);
@@ -135,11 +135,44 @@ public class EnhetstestBankController {
         when(sjekk.loggetInn()).thenReturn(null);
 
         // act
-        Konto resultat = bankController.hentTransaksjoner(null,"20.02.2024","27.02.2024");
+        Konto resultat = bankController.hentTransaksjoner(null,"2023-02-02","2023-02-02");
 
         // assert
         assertNull(resultat);
+    }
 
+    @Test
+    public void hentSaldi_LoggetInn() {
+        // arrange
+        List<Konto> konti = new ArrayList<>();
+        Konto konto1 = new Konto("105010123456", "01010110523",
+                720, "Lønnskonto", "NOK", null);
+        Konto konto2 = new Konto("105010123456", "12345678901",
+                1000, "Lønnskonto", "NOK", null);
+        konti.add(konto1);
+        konti.add(konto2);
+
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+
+        when(repository.hentSaldi(anyString())).thenReturn(konti);
+
+        // act
+        List<Konto> resultat = bankController.hentSaldi();
+
+        // assert
+        assertEquals(konti, resultat);
+    }
+
+    @Test
+    public void hentSaldi_IkkeLoggetInn() {
+        // arrange
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        // act
+        List<Konto> resultat = bankController.hentSaldi();
+
+        // assert
+        assertNull(resultat);
     }
 }
 
