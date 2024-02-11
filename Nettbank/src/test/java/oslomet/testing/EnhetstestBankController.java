@@ -214,7 +214,7 @@ public class EnhetstestBankController {
 
         Transaksjon transaksjon1 = new Transaksjon(1, "01010110523", 15000, "2023-02-02",
                 "Husleie februar 2023", "", "12345678901");
-        Transaksjon transaksjon2 = new Transaksjon(1, "01010110523", 15000, "2023-04-04",
+        Transaksjon transaksjon2 = new Transaksjon(2, "01010110523", 15000, "2023-04-04",
                 "Husleie april 2023", "", "12345678901");
         transaksjoner.add(transaksjon1);
         transaksjoner.add(transaksjon2);
@@ -237,6 +237,52 @@ public class EnhetstestBankController {
 
         // act
         List<Transaksjon> resultat = bankController.hentBetalinger();
+
+        // assert
+        assertNull(resultat);
+    }
+
+    @Test
+    public void utforBetaling_LoggetInn() {
+        // arrange
+        List<Transaksjon> transaksjoner = new ArrayList<>();
+
+        Transaksjon transaksjon1 = new Transaksjon(1, "01010110523", 15000, "2023-02-02",
+                "Husleie februar 2023", "", "12345678901");
+        transaksjoner.add(transaksjon1);
+
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+        when(repository.utforBetaling(1)).thenReturn("OK");
+        when(repository.hentBetalinger("01010110523")).thenReturn(transaksjoner);
+
+        // act
+        List<Transaksjon> resultat = bankController.utforBetaling(1);
+
+        // assert
+        assertEquals(transaksjoner, resultat);
+    }
+
+    @Test
+    public void utforBetaling_LoggetInn_IDFeil() {
+        // arrange
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+
+        when(repository.utforBetaling(3)).thenReturn("Feil");
+
+        // act
+        List<Transaksjon> resultat = bankController.utforBetaling(3);
+
+        // assert
+        assertNull(resultat);
+    }
+
+    @Test
+    public void utforBetaling_IkkeLoggetInn() {
+        // arrange
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        // act
+        List<Transaksjon> resultat = bankController.utforBetaling(1);
 
         // assert
         assertNull(resultat);
